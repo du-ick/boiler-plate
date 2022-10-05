@@ -4,6 +4,7 @@ const port = 5100;
 const bodyParser = require('body-parser');
 const config = require('./config/key')
 const { User } = require("./models/User");
+const { auth } = require('./middleware/auth');
 
 
 //application/x-www-form-urlencoded
@@ -24,7 +25,7 @@ mongoose.connect(config.mongoURI,
 
   app.get("/", (req, res) => res.send("acc") );
 
-  app.post('/register', (req, res) => {
+  app.post('/api/users/register', (req, res) => {
     //회원가입 할 때 필요한 정보를 client 에서 가져오면
     //DB에 삽입
     const user = new User(req.body);
@@ -36,7 +37,7 @@ mongoose.connect(config.mongoURI,
     })
   })
 
-  app.post('/login', (req, res) =>{
+  app.post('/api/users//login', (req, res) =>{
     //요청된 이메일이 DB에 있는지 찾는다.
     User.findOne({ email: req.body.email }, (err, user) => {
       if(!user) {
@@ -55,16 +56,28 @@ mongoose.connect(config.mongoURI,
       //비밀번호가 맞다면 token 생성
       user.generateToken((err, user )=> {
         if(err) return res.status(400).send(err)
-        
           // token을 저장 ( 쿠키 )
           res.cookie('x_auth', user.token)
           .status(200)
           .json({ loginSuccess: true, userId: user._id})
-  
-        })
       })
     })
+  })
 
+  app.get('/api/users/auth', auth,(req, res) => {
+
+    res.status(200).json({
+      _id: req.user._id,
+      isAdmin: req.user.role === 0 ? false : true,
+      isAuth: true,
+      email: req.user.email,
+      name: req.user.name,
+      lastname: req.user.lastname,
+      role: req.user.role,
+      image: req.user.image
+    })
+
+  })
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
