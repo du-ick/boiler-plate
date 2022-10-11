@@ -1,4 +1,4 @@
-# boiler-plate
+# boiler-plate for react
 
 ### dev.js 작성
 

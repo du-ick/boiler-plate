@@ -83,6 +83,10 @@ mongoose.connect(config.mongoURI,
 
   })
 
+  app.get('/api/landing', (req, res) => {
+    res.send('true !!')
+  })
+
   app.get('/api/users/logout', auth, (req, res) => {
     User.findOneAndUpdate({_id: req.user._id},
       { token: "" }
